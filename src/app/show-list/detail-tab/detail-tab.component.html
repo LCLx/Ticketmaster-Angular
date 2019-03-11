@@ -1,0 +1,197 @@
+<div class="m-auto" style="max-width: 1000px;">
+  <div class="justify-content-end">
+    <ul class="nav nav-tabs justify-content-end">
+      <li class="nav-item">
+        <a class="nav-link" (click)="selectedTab='event'" [class.active]="selectedTab === 'event'">Event</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link " (click)="selectedTab='artist'" [class.active]="selectedTab === 'artist'">Artist/Teams</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" (click)="selectedTab='venue'" [class.active]="selectedTab === 'venue'">Venue</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" (click)="selectedTab='upcoming'" [class.active]="selectedTab === 'upcoming'">Upcoming
+          Event</a>
+      </li>
+    </ul>
+  </div>
+  <div *ngIf="selectedTab==='event'" class="table-responsive mt-2">
+    <table class="table table-striped">
+      <tbody>
+      <tr *ngIf="getArtistTeam()!='N/A'">
+        <th scope="row">Artist/Team(s)</th>
+        <td>{{getArtistTeam()}}</td>
+      </tr>
+      <tr *ngIf="getVenue()!='N/A'">
+        <th scope="row">Venue</th>
+        <td>{{getVenue()}}</td>
+      </tr>
+      <tr *ngIf="getTime()!='N/A'">
+        <th scope="row">Time</th>
+        <td>{{getTime()}}</td>
+      </tr>
+      <tr *ngIf="getCat()!='N/A'">
+        <th scope="row">Category</th>
+        <td>{{getCat()}}</td>
+      </tr>
+      <tr *ngIf="getPrice()!='N/A'">
+        <th scope="row">Price Range</th>
+        <td>{{getPrice()}}</td>
+      </tr>
+      <tr *ngIf="getStatus()!='N/A'">
+        <th scope="row">Ticket Status</th>
+        <td style="text-transform: capitalize">{{getStatus()}}</td>
+      </tr>
+      <tr *ngIf="getUrl()!='N/A'">
+        <th scope="row">Buy Ticket At</th>
+        <td><a [href]="getUrl()" target="view_window">Ticketmaster</a></td>
+      </tr>
+      <tr *ngIf="getSeatUrl()!='N/A'">
+        <th scope="row">Buy Ticket At</th>
+        <td><a data-toggle="modal" href="#myModal">View Seat Map Here</a></td>
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="selectedTab==='venue'">
+    <div *ngIf="checkVenue()">
+      <h3 class="text-center">{{event['_embedded']['venues'][0]['name']}}</h3>
+      <table class="table table-striped">
+        <tr *ngIf="getAddress()!='N/A'">
+          <th scope="row" class="showVenue">Address</th>
+          <td>{{getAddress()}}</td>
+        </tr>
+        <tr *ngIf="getCity()!='N/A'">
+          <th scope="row" class="showVenue">City</th>
+          <td>{{getCity()}}</td>
+        </tr>
+        <tr *ngIf="getPhoneNumber()!='N/A'">
+          <th scope="row" class="showVenue">Phone Number</th>
+          <td>{{getPhoneNumber()}}</td>
+        </tr>
+        <tr *ngIf="getOpenHours()!='N/A'">
+          <th scope="row" class="showVenue">Open Hours</th>
+          <td>{{getOpenHours()}}</td>
+        </tr>
+        <tr *ngIf="getGeneralRule()!='N/A'">
+          <th scope="row" class="showVenue">General Rule</th>
+          <td>{{getGeneralRule()}}</td>
+        </tr>
+        <tr *ngIf="getChildRule()!='N/A'">
+          <th scope="row" class="showVenue">Child Rule</th>
+          <td>{{getChildRule()}}</td>
+        </tr>
+      </table>
+    </div>
+    <div *ngIf="!checkVenue()">
+      <div class="card p-2 m-auto" style="max-width: 1000px;background-color: rgb(255,242,206); color: rgb(129,110,68)">
+        No Venue Info.
+      </div>
+    </div>
+    <div *ngIf="checkPosition()" style="width: 100%; height: 400px">
+      <agm-map
+        [latitude]="event['_embedded']['venues'][0]['location']['latitude']*1"
+        [longitude]="event['_embedded']['venues'][0]['location']['longitude']*1"
+        [zoom]="13"
+        [zoomControl]="true"
+      >
+        <agm-marker
+          [latitude]="event['_embedded']['venues'][0]['location']['latitude']*1"
+          [longitude]="event['_embedded']['venues'][0]['location']['longitude']*1"
+        >
+        </agm-marker>
+      </agm-map>
+    </div>
+  </div>
+
+  <div *ngIf="selectedTab==='artist'&& (googlePics === 'loading'||spotifyResults === 'loading')"
+       class="m-auto p-3 justify-content-center mt-5" style="max-width: 1000px;">
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 40%" aria-valuenow="40"
+           aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+  <div *ngIf="selectedTab==='artist'&& googlePics === 'noResult'&&spotifyResults === 'noResults'">
+    <div class="card p-2 m-auto" style="max-width: 1000px;background-color: rgb(255,242,206); color: rgb(129,110,68)">
+      No Result.
+    </div>
+  </div>
+  <div *ngIf="selectedTab==='artist'&& (googlePics !== 'loading'||googlePics!=='noResult')&&(spotifyResults !== 'loading'||spotifyResults!=='noResult')">
+    <div *ngFor="let e of event['_embedded']['attractions']">
+      <h4 class="text-center">{{e['name']}}</h4>
+      <table class=" table table-striped" *ngIf="checkCat()&&spotifyResults[e['name']]" style="max-width: 1000px">
+        <tbody>
+        <tr>
+          <th scope="row">Name</th>
+          <td>{{[e['name']]}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Followers</th>
+          <td>{{spotifyResults[e['name']]['followers']|number}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Popularity</th>
+          <td>{{spotifyResults[e['name']]['popularity']}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Check At</th>
+          <td><a [href]="spotifyResults[e['name']]['checkAt']" target="view_window">Spotify</a></td>
+        </tr>
+        </tbody>
+      </table>
+      <section class="photoSection">
+        <a *ngFor="let p of googlePics[e['name']]" [href]="p" target="view_window">
+          <img [src]="p" alt="" class="w-100 p-2">
+        </a>
+      </section>
+    </div>
+  </div>
+  <div *ngIf="selectedTab==='upcoming'&&venueInfo === 'loading'" class="m-auto p-3 justify-content-center mt-5"
+       style="max-width: 1000px;">
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 40%" aria-valuenow="40"
+           aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+  <div *ngIf="venueInfo!=='loading'&&selectedTab==='upcoming'">
+    <div *ngIf="!venueInfo['event']">
+      <div class="card p-2" style="max-width: 1000px;background-color: rgb(255,242,206); color: rgb(129,110,68)"> No
+        Info
+      </div>
+    </div>
+    <div class="p-2" *ngIf="venueInfo['event']">
+      <div class="form-row m-2">
+        <select name="byWhich" class="form-control col-sm-3" [(ngModel)]="sortIndex" (ngModelChange)="sortAgain()">
+          <option value="default">Default</option>
+          <option value="eventName">Event Name</option>
+          <option value="time">Time</option>
+          <option value="artist">Artist</option>
+          <option value="type">Type</option>
+        </select>
+        <select name="inWhichWay" class="form-control col-sm-3" [(ngModel)]="sortDirection"
+                [disabled]="sortIndex==='default'" (ngModelChange)="sortAgain()">
+          <option value="ascend">Ascending</option>
+          <option value="descend">Descending</option>
+        </select>
+      </div>
+      <div class="justify-content-center" [@filterAnimation]="end">
+        <div *ngFor="let item of venueInfo['event']|slice: 0:end" class="card m-2 p-2">
+          <div><a [href]="item['uri']" target="view_window">{{item['displayName']}}</a></div>
+          <div style="display: inherit">
+            <p class="m-0" style="color: orangered;">Artist: {{item['performance'][0]['displayName']}}&nbsp;&nbsp;</p>
+            <p class="m-0" style="color: gray;"
+               *ngIf="getSongKickTime(item)!='N/A'">{{item['start']['date']|date}}{{' ' + getSongKickTime(item)}}</p>
+          </div>
+          <div><p>Type: {{item['type']}}</p></div>
+        </div>
+        <div class="text-center">
+          <button class="btn btn-primary" *ngIf="venueInfo['event'][5]"
+                  (click)="letShowChange()">{{end === 5 ? 'Show More' : 'Show Less'}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

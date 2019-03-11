@@ -1,0 +1,11 @@
+span {
+  color: red;
+}
+
+.material-icons {
+  vertical-align: bottom;
+}
+
+#reset {
+  border: 1px solid #ced4da;
+}

@@ -1,0 +1,18 @@
+.star {
+  border: 1px solid #ced4da;
+}
+
+.material-icons {
+  vertical-align: bottom;
+}
+
+.table td{
+  vertical-align: middle;
+}
+
+.btnBorder {
+  border: 1px solid #ced4da;
+}
+.hidden{
+  display: none;
+}

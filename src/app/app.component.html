@@ -1,0 +1,91 @@
+<div class="m-auto p-3">
+  <div class="card bg-light m-auto p-3" style="max-width: 1000px">
+    <h5 style="text-align: center; margin-top: 10px;">Entertainment Event Ticket Search</h5>
+    <form (submit)="submitForm();$event.preventDefault();">
+      <div class="form-group row justify-content-center">
+        <label for="inputKeyword" class="col-sm-2 col-form-label">Keyword<span>*</span></label>
+        <div class="col-sm-7">
+          <input type="text" name="inputKeyword" id="inputKeyword" class="form-control"
+                 placeholder="Enter Artist, Team or Event Name (eg. Lakers)" [matAutocomplete]="auto"
+                 [(ngModel)]="indexInput.inputKeyword" (ngModelChange)=keywordChangeThrottle() (blur) = "checkKeywordBlur()" required>
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let option of this.autoComplete" [value]="option.name">{{option.name}}</mat-option>
+          </mat-autocomplete>
+          <div class="invalid-feedback ">Please enter a keyword.</div>
+        </div>
+      </div>
+      <div class="form-group row justify-content-center">
+        <label for="inputCategory" class="col-sm-2 col-form-label">Category</label>
+        <div class="col-sm-7">
+          <select name="category" id="inputCategory" class="form-control col-sm-4"
+                  [(ngModel)]="indexInput.inputCategory">
+            <option value="all">All</option>
+            <option value="music">Music</option>
+            <option value="sports">Sports</option>
+            <option value="art_theatre">Art & theatre</option>
+            <option value="film">Film</option>
+            <option value="miscellaneous">Miscellaneous</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row justify-content-center">
+        <label for="inputDistance" class="col-sm-2 col-form-label">Distance</label>
+        <div class="form-row col-sm-7 m-0">
+          <input type="text" name="inputDistance" id="inputDistance" class="form-control col-sm-4  mr-sm-3"
+                 placeholder="10" [(ngModel)]="indexInput.inputDistance">
+          <select name="distanceMeasure" id="distanceMeasure" class="form-control col-sm-4"
+                  [(ngModel)]="indexInput.distanceMeasure">
+            <option value="miles">Miles</option>
+            <option value="km">Kilometers</option>
+          </select>
+        </div>
+      </div>
+      <fieldset class="form-group">
+        <div class="row justify-content-center">
+          <legend class="col-form-label col-sm-2 pt-0">From<span>*</span></legend>
+          <div class="col-sm-7">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="inputFrom" id="radioCurrent" value="current" checked
+                     [(ngModel)]="indexInput.inputFrom" (ngModelChange)="checkOther()">
+              <label for="radioCurrent">Current location</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="inputFrom" id="radioOther" value="other"
+                     [(ngModel)]="indexInput.inputFrom">
+              <label for="radioOther">Other. Please specify:</label>
+              <input type="text" id="inputOther" name="inputOther" class="form-control needs-validation"
+                     [(ngModel)]="indexInput.inputOther" required (ngModelChange)="checkOther()"
+                     [disabled]="indexInput.inputFrom==='current'" (blur)="checkOtherBlur()">
+              <div class="invalid-feedback">Please enter a location.</div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+      <div class="form-group row justify-content-center">
+        <div class="col-sm-5">
+          <button type="submit" disabled class="btn btn-primary mr-3" id="submit" [class.disabled]="!checkValidInput()"><i
+            class="material-icons md-18">search</i>Search
+          </button>
+          <button class="btn" id="reset" (click)="reset()"><i class="material-icons md-18">clear_all</i>Clear</button>
+        </div>
+        <div class="col-sm-4"></div>
+      </div>
+    </form>
+  </div>
+</div>
+<ul class="nav nav-pills justify-content-center">
+  <li class="nav-item">
+    <a class="nav-link" href="javascript:void(0)" (click)= "selectedMainPanel = true" [class.active] = this.selectedMainPanel>Results</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="javascript:void(0)" (click)= "selectedMainPanel = false" [class.active] = !this.selectedMainPanel>Favourites</a>
+  </li>
+</ul>
+<div *ngIf="results === 'loading'" class="m-auto p-3 justify-content-center mt-5" style="max-width: 1000px;">
+  <div class="progress">
+    <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+  </div>
+</div>
+<app-show-list *ngIf="this.selectedMainPanel&&results&&results!=='loading'" [results]="results" [storedEvents]="storedEvents" [selectedMainPanel] = "selectedMainPanel"></app-show-list>
+<app-show-list *ngIf="!this.selectedMainPanel" [results]="storedEvents" [storedEvents]="storedEvents" [selectedMainPanel] = "selectedMainPanel"></app-show-list>
+<!--<router-outlet></router-outlet>-->

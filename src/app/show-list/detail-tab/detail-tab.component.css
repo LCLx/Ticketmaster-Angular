@@ -1,0 +1,21 @@
+.showVenue {
+  width: 150px;
+}
+
+.table th {
+  vertical-align: middle;
+}
+
+agm-map {
+  width: 100%;
+  height: 100%;
+}
+
+.photoSection {
+  column-count: 3;
+  column-gap: 20px;
+  -webkit-column-count: 3;
+  -webkit-column-gap: 20px;
+  -moz-column-count: 3;
+  -moz-column-gap: 20px;
+}

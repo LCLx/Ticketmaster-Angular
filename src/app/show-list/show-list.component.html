@@ -1,0 +1,95 @@
+<div class="justify-content-center p-3 ">
+  <div *ngIf="results ==='NULL'||(!results.length&&!shouldShowDetail)" class="card p-2 m-auto"
+       style="max-width: 1000px;background-color: rgb(255,242,206); color: rgb(129,110,68)">No records.
+  </div>
+  <div *ngIf="results ==='ERR'" class="card p-2 m-auto"
+       style="max-width: 1000px;background-color: rgb(246,215,217); color: rgb(145,98,102)">Failed to get search
+    results.
+  </div>
+  <div *ngIf="results!=='NULL'&&results!=='ERR'&&(results.length||shouldShowDetail)">
+    <div [class.hidden]="shouldShowDetail" [@showHideDetail]="shouldShowDetail?'hide':'show'">
+      <div class="m-auto  text-right" style="max-width: 1000px;">
+        <button class="btn m-2 btnBorder" id="detail" [class.disabled]="!selectedItem" (click)="clickDetail()"
+                [disabled]="!selectedItem">
+          Details<i class="material-icons">
+          chevron_right
+        </i></button>
+      </div>
+      <div class="table-responsive">
+        <table class="table m-auto table-hover" style="width: 1000px;">
+          <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Date</th>
+            <th scope="col">Event</th>
+            <th scope="col">Category</th>
+            <th scope="col">Venue Info</th>
+            <th scope="col">Favourite</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let event of results" [class.table-warning]="event===selectedItem">
+            <td>{{results.indexOf(event) + 1}}</td>
+            <td>{{event['dates']['start']['localDate']}}</td>
+            <td><a href="" matTooltip="{{event['name']}}" (click)="showDetail(event)">{{shorten(event['name'])}}</a>
+            </td>
+            <td>{{showGenre(event)}}</td>
+            <td>{{showVenue(event)}}</td>
+            <td>
+              <button *ngIf="!checkStar(event)" class="btn btnBorder star" (click)="store(event)"><i
+                class="material-icons md-18">star_border</i></button>
+              <button *ngIf="checkStar(event)&&selectedMainPanel" class="btn btnBorder star" (click)="forget(event)"><i
+                class="material-icons md-18" style="color: #e0a800">star</i></button>
+              <button *ngIf="!selectedMainPanel" class="btn btnBorder star" (click)="forget(event)"><i
+                class="material-icons md-18">delete</i></button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div [class.hidden]="!shouldShowDetail" [@showHideDetail]="shouldShowDetail?'show':'hide'">
+      <div class="m-auto" style="max-width: 1000px;">
+        <h3 class="text-center" *ngIf="shouldShowDetail">{{selectedItem['name']}}</h3>
+        <div class="row justify-content-between m-2">
+          <div>
+            <button class="btn btnBorder" (click)="shouldShowDetail=false" id="list">
+              <i class="material-icons">chevron_left</i>List
+            </button>
+          </div>
+          <div class="text-right">
+            <button *ngIf="selectedItem" class="btn p-0">
+              <a [href]="'https://twitter.com/intent/tweet?text='+twitterText()" target="view_window">
+                <img src="http://csci571.com/hw/hw8/Images/Twitter.png" alt="" height="38px">
+              </a>
+            </button>
+            <button *ngIf="!checkStar(selectedItem)" class="btn btnBorder star" (click)="store(selectedItem)"><i
+              class="material-icons md-18">star_border</i></button>
+            <button *ngIf="checkStar(selectedItem)" class="btn btnBorder star" (click)="forget(selectedItem)"><i
+              class="material-icons md-18" style="color: #e0a800">star</i></button>
+          </div>
+        </div>
+      </div>
+      <app-detail-tab [event]='selectedItem' [venueInfo]="selectedItemUpcoming" [googlePics]="googlePics" [spotifyResults]="spotifyResults"
+                      *ngIf="shouldShowDetail"></app-detail-tab>
+    </div>
+  </div>
+</div>
+<div *ngIf="selectedItem" class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">View Seat Map</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <img [src]="getSeatUrl()" alt="" class="w-100">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn border-dark" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
